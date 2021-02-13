@@ -16,6 +16,7 @@ lazy val ploopserver =
       headerSettings(IntegrationTest),
       inConfig(IntegrationTest)(scalafmtSettings),
       IntegrationTest / console / scalacOptions --= Seq(
+        "-language:implicitConversions",
         "-Xfatal-warnings",
         "-Ywarn-unused-import",
         "-Ywarn-unused:implicits",
@@ -157,11 +158,16 @@ lazy val commonSettings =
     licenses += ("MPL-2.0", url("https://www.mozilla.org/en-US/MPL/2.0/")),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1"),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
+    mainClass := Some("org.podcastlooper.ploop.ploopserver.Server"),
+    artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+      artifact.name + "." + artifact.extension
+    },
     scalacOptions ++= Seq(
       "-deprecation",
       "-explaintypes",
       "-feature",
       "-language:higherKinds",
+      "-language:implicitConversions",
       "-unchecked",
       "-Xcheckinit",
       "-Xfatal-warnings",
@@ -193,6 +199,7 @@ lazy val commonSettings =
       "-Ycache-macro-class-loader:last-modified",
     ),
     Compile / console / scalacOptions --= Seq(
+      "-language:implicitConversions",
       "-Xfatal-warnings",
       "-Ywarn-unused-import",
       "-Ywarn-unused:implicits",
@@ -204,6 +211,7 @@ lazy val commonSettings =
     ),
     Compile / compile / wartremoverWarnings ++= Warts.unsafe.filterNot(_ == Wart.Any), // Disable the "Any" wart due to too many false positives.
     Test / console / scalacOptions --= Seq(
+      "-language:implicitConversions",
       "-Xfatal-warnings",
       "-Ywarn-unused-import",
       "-Ywarn-unused:implicits",
