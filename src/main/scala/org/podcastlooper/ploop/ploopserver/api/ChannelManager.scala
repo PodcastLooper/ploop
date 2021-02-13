@@ -47,7 +47,7 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
 object ChannelManager {
   val channels: Endpoint[NonEmptyString, StatusCode, Channel, Any] =
     endpoint.get
-      .in("channel")
+      .in("channels")
       .in(query[NonEmptyString]("name"))
       .errorOut(statusCode)
       .out(jsonBody[Channel].description("Return the channels stored"))
