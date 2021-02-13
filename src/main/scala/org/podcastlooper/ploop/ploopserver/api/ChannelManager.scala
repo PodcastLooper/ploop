@@ -12,8 +12,8 @@ import cats.effect._
 import cats.implicits._
 import org.podcastlooper.ploop.ploopserver.models._
 import eu.timepit.refined.auto._
-import eu.timepit.refined.cats._
-import eu.timepit.refined.types.string.NonEmptyString
+//import eu.timepit.refined.cats._
+//import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl._
@@ -31,27 +31,28 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
   implicit def decodeChannel: EntityDecoder[F, Channel] = jsonOf
   implicit def encodeChannel: EntityEncoder[F, Channel] = jsonEncoderOf
 
-  private val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { name =>
+  private val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
     //noinspection ScalaUnnecessaryParentheses
-    val channel = (
-      NonEmptyString.from(name.show).toOption,
-      ).map { case (n) =>
-      Channel.fromName("Hello", n)
-    }
-    Sync[F].delay(channel.fold(StatusCode.BadRequest.asLeft[Channel])(_.asRight[StatusCode]))
+//    val channel = (
+//      NonEmptyString.from(name.show).toOption,
+//      ).map { case (n) =>
+//      Channel.fromName("Hello", n)
+//    }
+//    Sync[F].delay(channel.fold(StatusCode.BadRequest.asLeft[Channel])(_.asRight[StatusCode]))
+    Sync[F].delay(Either.right(List()))
   }
 
   val routes: HttpRoutes[F] = getChannel
 }
 
 object ChannelManager {
-  val channels: Endpoint[NonEmptyString, StatusCode, Channel, Any] =
+  val channels: Endpoint[Unit, StatusCode, List[Channel], Any] =
     endpoint.get
       .in("channels")
-      .in(query[NonEmptyString]("name"))
+//      .in(query[NonEmptyString]("name"))
       .errorOut(statusCode)
-      .out(jsonBody[Channel].description("Return the channels stored"))
+      .out(jsonBody[List[Channel]].description("Return the channels stored"))
       .description(
-        "Returns a simple JSON object using the provided query parameter 'name' which must not be empty."
+        "Returns a JSON representation of the channel stored in the database."
       )
 }
