@@ -41,8 +41,8 @@ object Server extends IOApp.WithContext {
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY).loadOrThrow[ServiceConfig]
       )
       _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
-      helloWorldRoutes = new HelloWorld[IO]
-      docs             = OpenAPIDocsInterpreter.toOpenAPI(List(HelloWorld.greetings), "loop Server", "1.0.0")
+      helloWorldRoutes = new ChannelManager[IO]
+      docs             = OpenAPIDocsInterpreter.toOpenAPI(List(ChannelManager.channels), "loop Server", "1.0.0")
       swagger          = new SwaggerHttp4s(docs.toYaml)
       routes           = helloWorldRoutes.routes <+> swagger.routes[IO]
       httpApp          = Router("/" -> routes).orNotFound

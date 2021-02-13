@@ -46,6 +46,9 @@ lazy val ploopserver =
         library.http4sDsl,
         library.logback,
         library.sqlite,
+        library.slick,
+        library.slf4jnop,
+        library.slickhikari,
         library.pureConfig,
         library.refinedCats,
         library.refinedCore,
@@ -87,6 +90,8 @@ lazy val library =
       val http4s        = "0.21.14"
       val logback       = "1.2.3"
       val sqlite        = "3.34.0"
+      val slick         = "3.3.3"
+      val slf4jnop      = "1.6.4"
       val pureConfig    = "0.14.0"
       val refined       = "0.9.20"
       val scalaCheck    = "1.15.2"
@@ -112,6 +117,9 @@ lazy val library =
     val http4sDsl         = "org.http4s"                  %% "http4s-dsl"               % Version.http4s
     val logback           = "ch.qos.logback"              %  "logback-classic"          % Version.logback
     val sqlite            = "org.xerial"                  %  "sqlite-jdbc"              % Version.sqlite
+    val slick             = "com.typesafe.slick"          %  "slick_2.13"               % Version.slick
+    val slf4jnop          = "org.slf4j"                   %  "slf4j-nop"                % Version.slf4jnop
+    val slickhikari       = "com.typesafe.slick"          %  "slick-hikaricp_2.13"      % Version.slick
     val pureConfig        = "com.github.pureconfig"       %% "pureconfig"               % Version.pureConfig
     val refinedCore       = "eu.timepit"                  %% "refined"                  % Version.refined
     val refinedCats       = "eu.timepit"                  %% "refined-cats"             % Version.refined

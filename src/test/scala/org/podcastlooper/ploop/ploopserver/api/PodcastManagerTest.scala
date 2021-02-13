@@ -19,11 +19,11 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 
 
-class HelloWorldTest extends BaseSpec {
+class ChannelManagerTest extends BaseSpec {
   implicit val contextShift: ContextShift[IO] = IO.contextShift(executionContext)
   implicit val timer: Timer[IO]               = IO.timer(executionContext)
 
-  implicit def decodeGreetings: EntityDecoder[IO, Greetings] = jsonOf
+  implicit def decodeChannel: EntityDecoder[IO, Channel] = jsonOf
 
   "HelloWorld" when {
     "parameter 'name' is missing" must {
@@ -34,7 +34,7 @@ class HelloWorldTest extends BaseSpec {
           case Left(_) =>
             fail("Could not generate valid URI!")
           case Right(u) =>
-            def service: HttpRoutes[IO] = Router("/" -> new HelloWorld[IO].routes)
+            def service: HttpRoutes[IO] = Router("/" -> new ChannelManager[IO].routes)
             val request = Request[IO](
               method = Method.GET,
               uri = u
@@ -60,7 +60,7 @@ class HelloWorldTest extends BaseSpec {
             case Left(_) =>
               fail("Could not generate valid URI!")
             case Right(u) =>
-              def service: HttpRoutes[IO] = Router("/" -> new HelloWorld[IO].routes)
+              def service: HttpRoutes[IO] = Router("/" -> new ChannelManager[IO].routes)
               val request = Request[IO](
                 method = Method.GET,
                 uri = u
@@ -84,7 +84,7 @@ class HelloWorldTest extends BaseSpec {
 
         s"return $expectedStatusCode" in {
           val name: NonEmptyString = "Captain Kirk"
-          val expectedGreetings = Greetings(
+          val expectedChannel = Channel(
             title = "Hello Captain Kirk!",
             headings = "Hello Captain Kirk, live long and prosper!",
             message = "This is a fancy message directly from http4s! :-)"
@@ -94,7 +94,7 @@ class HelloWorldTest extends BaseSpec {
               println(e)
               fail("Could not generate valid URI!")
             case Right(u) =>
-              def service: HttpRoutes[IO] = Router("/" -> new HelloWorld[IO].routes)
+              def service: HttpRoutes[IO] = Router("/" -> new ChannelManager[IO].routes)
               val request = Request[IO](
                 method = Method.GET,
                 uri = u
@@ -102,10 +102,10 @@ class HelloWorldTest extends BaseSpec {
               val response = service.orNotFound.run(request)
               for {
                 result <- response.unsafeToFuture()
-                body   <- result.as[Greetings].unsafeToFuture()
+                body   <- result.as[Channel].unsafeToFuture()
               } yield {
                 result.status must be(expectedStatusCode)
-                body must be(expectedGreetings)
+                body must be(expectedChannel)
               }
           }
         }
