@@ -23,8 +23,6 @@ import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.http4s._
-//import slick.jdbc.SQLiteProfile.api._
-//import scala.concurrent.{Future, Await}
 import doobie._
 import doobie.implicits._
 import doobie.util.ExecutionContexts
@@ -34,12 +32,13 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
   implicit def encodeChannel: EntityEncoder[F, Channel] = jsonEncoderOf
 
   val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
-    val statement = sql"select * from channels".query[Channel].unique
+
+    val statement = sql"select * from channels".query[Channel].to[List]
     val result = getFilteredChannels(statement)
     Sync[F].delay(Either.right(result))
   }
 
-  private def getFilteredChannels(statement: doobie.ConnectionIO[Channel]) = {
+  private def getFilteredChannels(statement: doobie.ConnectionIO[List[Channel]]) = {
     // We need a ContextShift[IO] before we can construct a Transactor[IO]. The passed ExecutionContext
     // is where nonblocking operations will be executed. For testing here we're using a synchronous EC.
     implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
@@ -57,7 +56,7 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
       io <- statement.transact(xa)
     } yield io
 
-    List(io.unsafeRunSync())
+    io.unsafeRunSync()
   }
 
   val routes: HttpRoutes[F] = getChannel

@@ -14,19 +14,19 @@ import io.circe.generic.semiauto._
 case class Channel(id: Int,
                    title: String,
                    description: String,
-                   itunes_image: String,
+                   itunes_image: Option[String],
                    language: String,
-                   itunes_category: String,
-                   itunes_explicit: String,
-                   itunes_author: String,
-                   link: String,
-                   itunes_owner: String,
-                   itunes_title: String,
-                   itunes_type: String,
-                   copyright: String,
-                   itunes_new_feed_url: String,
-                   itunes_block: String,
-                   itunes_complete: String)
+                   itunes_category: Option[String],
+                   itunes_explicit: Option[String],
+                   itunes_author: Option[String],
+                   link: Option[String],
+                   itunes_owner: Option[String],
+                   itunes_title: Option[String],
+                   itunes_type: Option[String],
+                   copyright: Option[String],
+                   itunes_new_feed_url: Option[String],
+                   itunes_block: Option[String],
+                   itunes_complete: Option[String])
 
 object Channel {
   implicit val decoder: Decoder[Channel] = deriveDecoder[Channel]
