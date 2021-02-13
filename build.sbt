@@ -6,6 +6,7 @@ lazy val ploopserver =
   project
     .in(file("."))
     .enablePlugins(AutomateHeaderPlugin)
+    .enablePlugins(JavaAppPackaging)
     .configs(IntegrationTest)
     .settings(
       name := "ploop-server"
