@@ -24,7 +24,7 @@ final case class ServiceConfig(ip: IP, port: PortNumber)
 
 object ServiceConfig {
   // The default configuration key to lookup the service configuration.
-  final val CONFIG_KEY: ConfigKey    = "service"
+  final val CONFIG_KEY: ConfigKey = "service"
 
   implicit val serviceConfigReader: ConfigReader[ServiceConfig] = deriveReader[ServiceConfig]
 

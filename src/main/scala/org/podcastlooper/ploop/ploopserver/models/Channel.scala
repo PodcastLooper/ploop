@@ -12,17 +12,8 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe._
 import io.circe.generic.semiauto._
-import io.circe.refined._
 
-/**
-  * A simple model for our hello world channel.
-  *
-  * @param title    A generic title.
-  * @param headings Some header which might be presented prominently to the user.
-  * @param message  A message for the user.
-  */
-case class Channel(title: GreetingTitle, headings: GreetingHeader, message: GreetingMessage)
-
+case class Channel(name: String, description: String)
 
 object Channel {
 
@@ -30,12 +21,11 @@ object Channel {
   implicit val encoder: Encoder[Channel] = deriveEncoder[Channel]
 
   def fromName(verb: NonEmptyString, name: NonEmptyString): Channel = {
-    val title = NonEmptyString.unsafeFrom(s"$verb $name")
+    val title    = NonEmptyString.unsafeFrom(s"$verb $name")
     val headings = NonEmptyString.unsafeFrom(s"$verb $name, live long and prosper!")
     new Channel(
       title,
-      headings,
-      "This is a fancy message directly from http4s! :-)"
+      headings
     )
   }
 
