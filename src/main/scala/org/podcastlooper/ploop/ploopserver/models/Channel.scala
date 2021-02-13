@@ -8,25 +8,27 @@
 
 package org.podcastlooper.ploop.ploopserver.models
 
-import eu.timepit.refined.auto._
-import eu.timepit.refined.types.string.NonEmptyString
 import io.circe._
 import io.circe.generic.semiauto._
 
-case class Channel(name: String, description: String)
+case class Channel(id: Int,
+                   title: String,
+                   description: String,
+                   itunes_image: String,
+                   language: String,
+                   itunes_category: String,
+                   itunes_explicit: String,
+                   itunes_author: String,
+                   link: String,
+                   itunes_owner: String,
+                   itunes_title: String,
+                   itunes_type: String,
+                   copyright: String,
+                   itunes_new_feed_url: String,
+                   itunes_block: String,
+                   itunes_complete: String)
 
 object Channel {
-
   implicit val decoder: Decoder[Channel] = deriveDecoder[Channel]
   implicit val encoder: Encoder[Channel] = deriveEncoder[Channel]
-
-  def fromName(verb: NonEmptyString, name: NonEmptyString): Channel = {
-    val title    = NonEmptyString.unsafeFrom(s"$verb $name")
-    val headings = NonEmptyString.unsafeFrom(s"$verb $name, live long and prosper!")
-    new Channel(
-      title,
-      headings
-    )
-  }
-
 }

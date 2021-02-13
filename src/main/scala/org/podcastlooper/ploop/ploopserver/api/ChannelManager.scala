@@ -13,13 +13,14 @@ import cats.implicits._
 import com.typesafe.config.ConfigFactory
 import org.podcastlooper.ploop.ploopserver.models._
 import eu.timepit.refined.auto._
-import org.podcastlooper.ploop.ploopserver.config.{ DatabaseConfig }
+import org.podcastlooper.ploop.ploopserver.config.DatabaseConfig
 import pureconfig.ConfigSource
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl._
 import sttp.model._
 import sttp.tapir._
+import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.http4s._
 //import slick.jdbc.SQLiteProfile.api._
@@ -32,13 +33,13 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
   implicit def decodeChannel: EntityDecoder[F, Channel] = jsonOf
   implicit def encodeChannel: EntityEncoder[F, Channel] = jsonEncoderOf
 
-  private val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
-    val statement = sql"select 42".query[Int].unique
-    val result: _root_.scala.collection.immutable.List[Int] = getFilteredChannels(statement)
+  val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
+    val statement = sql"select * from channels".query[Channel].unique
+    val result = getFilteredChannels(statement)
     Sync[F].delay(Either.right(result))
   }
 
-  private def getFilteredChannels(program2: doobie.ConnectionIO[Int]) = {
+  private def getFilteredChannels(statement: doobie.ConnectionIO[Channel]) = {
     // We need a ContextShift[IO] before we can construct a Transactor[IO]. The passed ExecutionContext
     // is where nonblocking operations will be executed. For testing here we're using a synchronous EC.
     implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
@@ -53,7 +54,7 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
         dbConfig.pass,
         Blocker.liftExecutionContext(ExecutionContexts.synchronous)
       )
-      io <- program2.transact(xa)
+      io <- statement.transact(xa)
     } yield io
 
     List(io.unsafeRunSync())
@@ -63,12 +64,12 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
 }
 
 object ChannelManager {
-  val channels: Endpoint[Unit, StatusCode, List[Int], Any] =
+  val channels: Endpoint[Unit, StatusCode, List[Channel], Any] =
     endpoint.get
       .in("channels")
 //      .in(query[NonEmptyString]("name"))
       .errorOut(statusCode)
-      .out(jsonBody[List[Int]].description("Return the channels stored"))
+      .out(jsonBody[List[Channel]].description("Return the channels stored"))
       .description(
         "Returns a JSON representation of the channel stored in the database."
       )
