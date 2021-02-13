@@ -31,7 +31,7 @@ abstract class BaseSpec
     with BeforeAndAfterEach {
 
   protected val config        = ConfigFactory.load()
-  protected val dbConfig      = ConfigSource.fromConfig(config).at("database").load[DatabaseConfig]
+//  protected val dbConfig      = ConfigSource.fromConfig(config).at("database").load[DatabaseConfig]
   protected val serviceConfig = ConfigSource.fromConfig(config).at("service").load[ServiceConfig]
 
 }

@@ -13,7 +13,7 @@ import cats.implicits._
 import com.typesafe.config._
 import org.podcastlooper.ploop.ploopserver.api._
 import org.podcastlooper.ploop.ploopserver.config._
-import org.podcastlooper.ploop.ploopserver.db.FlywayDatabaseMigrator
+//import org.podcastlooper.ploop.ploopserver.db.FlywayDatabaseMigrator
 import eu.timepit.refined.auto._
 import org.http4s.implicits._
 import org.http4s.server.Router
@@ -31,17 +31,17 @@ object Server extends IOApp.WithContext {
   override protected def executionContextResource: Resource[SyncIO, ExecutionContext] = Resource.liftF(SyncIO(ec))
 
   override def run(args: List[String]): IO[ExitCode] = {
-    val migrator = new FlywayDatabaseMigrator
+//    val migrator = new FlywayDatabaseMigrator
 
     val program = for {
       config <- IO(ConfigFactory.load(getClass().getClassLoader()))
-      dbConfig <- IO(
-        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY).loadOrThrow[DatabaseConfig]
-      )
+//      dbConfig <- IO(
+//        ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY).loadOrThrow[DatabaseConfig]
+//      )
       serviceConfig <- IO(
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY).loadOrThrow[ServiceConfig]
       )
-      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
+//      _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
       helloWorldRoutes = new HelloWorld[IO]
       docs             = OpenAPIDocsInterpreter.toOpenAPI(List(HelloWorld.greetings), "loop Server", "1.0.0")
       swagger          = new SwaggerHttp4s(docs.toYaml)
