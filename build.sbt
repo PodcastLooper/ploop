@@ -37,7 +37,6 @@ lazy val ploopserver =
         library.circeParser,
         library.doobieCore,
         library.doobieHikari,
-        library.doobieSpecs2,
         library.doobiePostgres,
         library.doobieRefined,
         library.enumeratumCirce,
