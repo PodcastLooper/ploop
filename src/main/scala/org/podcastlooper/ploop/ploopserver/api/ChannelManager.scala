@@ -31,11 +31,20 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
   implicit def decodeChannel: EntityDecoder[F, Channel] = jsonOf
   implicit def encodeChannel: EntityEncoder[F, Channel] = jsonEncoderOf
 
-  val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
-
+  val getChannels: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
     val statement = sql"select * from channels".query[Channel].accumulate[List]
-    val result = getFilteredChannels(statement)
-    Sync[F].delay(Either.right(result))
+    val databaseChannels = getFilteredChannels(statement)
+    val decoratedChannels = databaseChannels.map(DecoratedChannel.fromChannel(_, "toto.html"))
+    Sync[F].delay(Either.right(decoratedChannels))
+  }
+
+  val getChannelItems: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channelItems) { channelById: ChannelById =>
+    val statement = sql"select * from items where channelId = ${channelById.id}".query[Item].accumulate[List]
+    println(statement)
+    val decoratedItems = List()
+//    val databaseChannels = getFilteredChannels(statement)
+//    val decoratedChannels = databaseChannels.map(DecoratedChannel.fromChannel(_, "toto.html"))
+    Sync[F].delay(Either.right(decoratedItems))
   }
 
   private def getFilteredChannels(statement: doobie.ConnectionIO[List[Channel]]) = {
@@ -59,17 +68,28 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
     io.unsafeRunSync()
   }
 
-  val routes: HttpRoutes[F] = getChannel
+  val routes: HttpRoutes[F] = getChannels <+> getChannelItems
 }
 
+case class ChannelById(id: Int)
+
 object ChannelManager {
-  val channels: Endpoint[Unit, StatusCode, List[Channel], Any] =
+  val channels: Endpoint[Unit, StatusCode, List[DecoratedChannel], Any] =
     endpoint.get
       .in("channels")
 //      .in(query[NonEmptyString]("name"))
       .errorOut(statusCode)
-      .out(jsonBody[List[Channel]].description("Return the channels stored"))
+      .out(jsonBody[List[DecoratedChannel]].description("Return the channels stored"))
       .description(
         "Returns a JSON representation of the channel stored in the database."
+      )
+
+  val channelItems: Endpoint[ChannelById, StatusCode, List[DecoratedItem], Any] =
+    endpoint.get
+      .in(("channels" / path[Int]("channelId") / "items").mapTo(ChannelById))
+      .errorOut(statusCode)
+      .out(jsonBody[List[DecoratedItem]].description("Return the item related to the channel with ID channelID"))
+      .description(
+        "Returns a JSON representation of the items stored in the database for a given channel."
       )
 }

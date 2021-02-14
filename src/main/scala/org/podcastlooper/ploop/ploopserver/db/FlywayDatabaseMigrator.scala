@@ -27,6 +27,8 @@ final class FlywayDatabaseMigrator {
     IO {
       val flyway: Flyway =
         Flyway.configure().dataSource(url, user, pass).load()
+//      flyway.repair()
+//      flyway.baseline()
       flyway.migrate()
     }
 

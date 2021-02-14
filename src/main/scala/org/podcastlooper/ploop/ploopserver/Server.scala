@@ -33,7 +33,7 @@ object Server extends IOApp.WithContext {
   override def run(args: List[String]): IO[ExitCode] = {
     val migrator = new FlywayDatabaseMigrator
     val program = for {
-      config <- IO(ConfigFactory.load(getClass().getClassLoader()))
+      config <- IO(ConfigFactory.load(getClass.getClassLoader))
       dbConfig <- IO(
         ConfigSource.fromConfig(config).at(DatabaseConfig.CONFIG_KEY).loadOrThrow[DatabaseConfig]
       )
@@ -42,7 +42,10 @@ object Server extends IOApp.WithContext {
       )
       _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
       helloWorldRoutes = new ChannelManager[IO]
-      docs             = OpenAPIDocsInterpreter.toOpenAPI(List(ChannelManager.channels), "loop Server", "1.0.0")
+      docs             = OpenAPIDocsInterpreter.toOpenAPI(List(
+        ChannelManager.channels,
+        ChannelManager.channelItems
+      ), "Ploop Server", "1.0.0")
       swagger          = new SwaggerHttp4s(docs.toYaml)
       routes           = helloWorldRoutes.routes <+> swagger.routes[IO]
       httpApp          = Router("/" -> routes).orNotFound
