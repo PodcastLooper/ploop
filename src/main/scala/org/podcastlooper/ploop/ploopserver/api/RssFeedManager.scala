@@ -13,8 +13,9 @@ import org.podcastlooper.ploop.ploopserver.config.DatabaseConfig
 import eu.timepit.refined.auto._
 import pureconfig.ConfigSource
 import sttp.model.StatusCode
-import sttp.tapir.json.circe.jsonBody
-import sttp.tapir._
+import sttp.tapir.Codec.XmlCodec
+//import sttp.tapir.json.circe.jsonBody
+import sttp.tapir.{DecodeResult, _}
 import sttp.tapir.generic.auto._
 import sttp.tapir.server.http4s._
 
@@ -66,12 +67,22 @@ final class RssFeedManager[F[_] : Concurrent : ContextShift : Sync : Timer] exte
   val routes: HttpRoutes[F] = getChannelRssFeed
 }
 
+class DecoratedChannelWithItemsCodec extends XmlCodec[DecoratedChannelWithItems]{
+  override def schema: Typeclass[DecoratedChannelWithItems] = null
+
+  override def format: CodecFormat.Xml = CodecFormat.Xml()
+
+  override def rawDecode(l: String): DecodeResult[DecoratedChannelWithItems] = null
+
+  override def encode(h: DecoratedChannelWithItems): String = "Hello"
+}
+
 object RssFeedManager {
   val rssFeed: Endpoint[ChannelById, StatusCode, DecoratedChannelWithItems, Any] =
     endpoint.get
       .in(("channels" / path[Int]("channelId") / "rss").mapTo(ChannelById))
       .errorOut(statusCode)
-      .out(jsonBody[DecoratedChannelWithItems].description("Return the item related to the channel with ID channelID"))
+      .out(xmlBody[DecoratedChannelWithItems](new DecoratedChannelWithItemsCodec).description("Return the item related to the channel with ID channelID"))
       .description(
         "Returns a JSON representation of the items stored in the database for a given channel."
       )

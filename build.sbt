@@ -46,6 +46,7 @@ lazy val ploopserver =
         library.http4sBlazeServer,
         library.http4sCirce,
         library.http4sDsl,
+        library.http4sScalaXml,
         library.logback,
         library.sqlite,
 //        library.slick,
@@ -117,6 +118,7 @@ lazy val library =
     val http4sBlazeClient = "org.http4s"                  %% "http4s-blaze-client"      % Version.http4s
     val http4sCirce       = "org.http4s"                  %% "http4s-circe"             % Version.http4s
     val http4sDsl         = "org.http4s"                  %% "http4s-dsl"               % Version.http4s
+    val http4sScalaXml    = "org.http4s"                  %% "http4s-scala-xml"         % Version.http4s
     val logback           = "ch.qos.logback"              %  "logback-classic"          % Version.logback
     val sqlite            = "org.xerial"                  %  "sqlite-jdbc"              % Version.sqlite
 //    val slick             = "com.typesafe.slick"          %  "slick_2.13"               % Version.slick
