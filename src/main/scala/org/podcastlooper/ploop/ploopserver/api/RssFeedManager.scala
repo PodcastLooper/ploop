@@ -78,11 +78,36 @@ class DecoratedChannelWithItemsCodec extends XmlCodec[DecoratedChannelWithItems]
 }
 
 object RssFeedManager {
+
+  val formatter = new scala.xml.PrettyPrinter(24, 4)
+
+  val example = DecoratedChannelWithItems(1, "toto",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    List()
+  )
+  val codec = Codec.xml(
+    (_: String) => DecodeResult.Value(example)
+  )(
+    (_: DecoratedChannelWithItems) => formatter.format(<rss version="2.0"></rss>)
+  )
   val rssFeed: Endpoint[ChannelById, StatusCode, DecoratedChannelWithItems, Any] =
     endpoint.get
       .in(("channels" / path[Int]("channelId") / "rss").mapTo(ChannelById))
       .errorOut(statusCode)
-      .out(xmlBody[DecoratedChannelWithItems](new DecoratedChannelWithItemsCodec).description("Return the item related to the channel with ID channelID"))
+      .out(xmlBody[DecoratedChannelWithItems](codec).description("Return the item related to the channel with ID channelID"))
       .description(
         "Returns a JSON representation of the items stored in the database for a given channel."
       )
