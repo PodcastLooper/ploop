@@ -41,14 +41,20 @@ object Server extends IOApp.WithContext {
         ConfigSource.fromConfig(config).at(ServiceConfig.CONFIG_KEY).loadOrThrow[ServiceConfig]
       )
       _ <- migrator.migrate(dbConfig.url, dbConfig.user, dbConfig.pass)
-      helloWorldRoutes = new ChannelManager[IO]
-      docs             = OpenAPIDocsInterpreter.toOpenAPI(List(
-        ChannelManager.channels,
-        ChannelManager.channelItems
-      ), "Ploop Server", "1.0.0")
-      swagger          = new SwaggerHttp4s(docs.toYaml)
-      routes           = helloWorldRoutes.routes <+> swagger.routes[IO]
-      httpApp          = Router("/" -> routes).orNotFound
+      channelRoute = new ChannelManager[IO].routes
+      rssRoute = new RssFeedManager[IO].routes
+      docs = OpenAPIDocsInterpreter.toOpenAPI(
+        List(
+          ChannelManager.channels,
+          ChannelManager.channelItems,
+          RssFeedManager.rssFeed,
+        ),
+        "Ploop Server",
+        "1.0.0"
+      )
+      swagger = new SwaggerHttp4s(docs.toYaml)
+      routes = channelRoute <+> rssRoute <+> swagger.routes[IO]
+      httpApp = Router("/" -> routes).orNotFound
       server = BlazeServerBuilder[IO](ec)
         .bindHttp(serviceConfig.port, serviceConfig.ip)
         .withHttpApp(httpApp)

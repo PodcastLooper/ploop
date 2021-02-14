@@ -45,6 +45,24 @@ case class DecoratedChannel(id: Int,
                             itunes_complete: Option[String],
                             link: String)
 
+case class DecoratedChannelWithItems(id: Int,
+                                     title: String,
+                                     description: String,
+                                     itunes_image: Option[String],
+                                     language: String,
+                                     itunes_category: Option[String],
+                                     itunes_explicit: Option[String],
+                                     itunes_author: Option[String],
+                                     itunes_owner: Option[String],
+                                     itunes_title: Option[String],
+                                     itunes_type: Option[String],
+                                     copyright: Option[String],
+                                     itunes_new_feed_url: Option[String],
+                                     itunes_block: Option[String],
+                                     itunes_complete: Option[String],
+                                     link: String,
+                                     items: List[DecoratedItem])
+
 object Channel {
   implicit val decoder: Decoder[Channel] = deriveDecoder[Channel]
   implicit val encoder: Encoder[Channel] = deriveEncoder[Channel]
@@ -58,5 +76,17 @@ object DecoratedChannel {
     val tupleToDecoratedChannel = (DecoratedChannel.apply _).tupled
     val arguments = Channel.unapply(channel).get :+ link
     tupleToDecoratedChannel(arguments)
+  }
+}
+
+object DecoratedChannelWithItems {
+  implicit val decoder: Decoder[DecoratedChannelWithItems] = deriveDecoder[DecoratedChannelWithItems]
+  implicit val encoder: Encoder[DecoratedChannelWithItems] = deriveEncoder[DecoratedChannelWithItems]
+
+  def fromChannel(channel: Channel, link: String, items: List[Item]): DecoratedChannelWithItems = {
+    val tupleToDecoratedChannelWithItems = (DecoratedChannelWithItems.apply _).tupled
+    val decoratedItems = items.map(DecoratedItem.fromItem(_, "item.html"))
+    val arguments = Channel.unapply(channel).get :+ link :+ decoratedItems
+    tupleToDecoratedChannelWithItems(arguments)
   }
 }
