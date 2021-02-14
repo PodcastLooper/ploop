@@ -18,14 +18,19 @@ class Repository {
 object Repository {
   def getItemsByChannelId(channelId: Int): List[DecoratedItem] = {
     val statement = sql"select * from items where channelId = $channelId".query[Item].accumulate[List]
-    println(statement)
-    val decoratedItems = List()
-    decoratedItems
+    val items = new DbResult[List[Item]].executeStatement(statement)
+    items.map(DecoratedItem.fromItem)
   }
 
   def getAllChannels: List[Channel] = {
     val statement = sql"select * from channels".query[Channel].accumulate[List]
+    new DbResult[List[Channel]].executeStatement(statement)
+  }
+}
 
+
+class DbResult[T] {
+  def executeStatement(statement: doobie.ConnectionIO[T]): T = {
     // We need a ContextShift[IO] before we can construct a Transactor[IO]. The passed ExecutionContext
     // is where nonblocking operations will be executed. For testing here we're using a synchronous EC.
     implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)

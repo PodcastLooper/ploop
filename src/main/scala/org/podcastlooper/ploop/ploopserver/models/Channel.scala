@@ -15,52 +15,53 @@ import shapeless.syntax.std.tuple._
 case class Channel(id: Int,
                    title: String,
                    description: String,
-                   itunes_image: Option[String],
                    language: String,
-                   itunes_category: Option[String],
-                   itunes_explicit: Option[String],
-                   itunes_author: Option[String],
-                   itunes_owner: Option[String],
-                   itunes_title: Option[String],
-                   itunes_type: Option[String],
+                   image: String,
+                   category: String,
+                   explicit: Boolean,
+                   author: Option[String],
+                   owner_name: Option[String],
+                   owner_mail: Option[String],
+                   podcast_type: Option[String],
                    copyright: Option[String],
-                   itunes_new_feed_url: Option[String],
-                   itunes_block: Option[String],
-                   itunes_complete: Option[String])
+                   new_feed_url: Option[String],
+                   block: Option[Boolean],
+                   complete: Option[Boolean],
+                   link: Option[String])
 
 case class DecoratedChannel(id: Int,
                             title: String,
                             description: String,
-                            itunes_image: Option[String],
                             language: String,
-                            itunes_category: Option[String],
-                            itunes_explicit: Option[String],
-                            itunes_author: Option[String],
-                            itunes_owner: Option[String],
-                            itunes_title: Option[String],
-                            itunes_type: Option[String],
+                            image: String,
+                            category: String,
+                            explicit: Boolean,
+                            author: Option[String],
+                            ownerName: Option[String],
+                            ownerMail: Option[String],
+                            podcastType: Option[String],
                             copyright: Option[String],
-                            itunes_new_feed_url: Option[String],
-                            itunes_block: Option[String],
-                            itunes_complete: Option[String],
-                            link: String)
+                            newFeedUrl: Option[String],
+                            block: Option[Boolean],
+                            complete: Option[Boolean],
+                            link: Option[String])
 
 case class DecoratedChannelWithItems(id: Int,
                                      title: String,
                                      description: String,
-                                     itunes_image: Option[String],
                                      language: String,
-                                     itunes_category: Option[String],
-                                     itunes_explicit: Option[String],
-                                     itunes_author: Option[String],
-                                     itunes_owner: Option[String],
-                                     itunes_title: Option[String],
-                                     itunes_type: Option[String],
+                                     image: String,
+                                     category: String,
+                                     explicit: Boolean,
+                                     author: Option[String],
+                                     ownerName: Option[String],
+                                     ownerMail: Option[String],
+                                     podcastType: Option[String],
                                      copyright: Option[String],
-                                     itunes_new_feed_url: Option[String],
-                                     itunes_block: Option[String],
-                                     itunes_complete: Option[String],
-                                     link: String,
+                                     newFeedUrl: Option[String],
+                                     block: Option[Boolean],
+                                     complete: Option[Boolean],
+                                     link: Option[String],
                                      items: List[DecoratedItem])
 
 object Channel {
@@ -72,9 +73,9 @@ object DecoratedChannel {
   implicit val decoder: Decoder[DecoratedChannel] = deriveDecoder[DecoratedChannel]
   implicit val encoder: Encoder[DecoratedChannel] = deriveEncoder[DecoratedChannel]
 
-  def fromChannel(channel: Channel, link: String): DecoratedChannel = {
+  def fromChannel(channel: Channel): DecoratedChannel = {
     val tupleToDecoratedChannel = (DecoratedChannel.apply _).tupled
-    val arguments = Channel.unapply(channel).get :+ link
+    val arguments = Channel.unapply(channel).get
     tupleToDecoratedChannel(arguments)
   }
 }
@@ -83,10 +84,10 @@ object DecoratedChannelWithItems {
   implicit val decoder: Decoder[DecoratedChannelWithItems] = deriveDecoder[DecoratedChannelWithItems]
   implicit val encoder: Encoder[DecoratedChannelWithItems] = deriveEncoder[DecoratedChannelWithItems]
 
-  def fromChannel(channel: Channel, link: String, items: List[Item]): DecoratedChannelWithItems = {
+  def fromChannel(channel: Channel, items: List[Item]): DecoratedChannelWithItems = {
     val tupleToDecoratedChannelWithItems = (DecoratedChannelWithItems.apply _).tupled
-    val decoratedItems = items.map(DecoratedItem.fromItem(_, "item.html"))
-    val arguments = Channel.unapply(channel).get :+ link :+ decoratedItems
+    val decoratedItems = items.map(DecoratedItem.fromItem)
+    val arguments = Channel.unapply(channel).get :+ decoratedItems
     tupleToDecoratedChannelWithItems(arguments)
   }
 }

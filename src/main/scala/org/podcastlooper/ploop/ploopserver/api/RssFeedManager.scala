@@ -28,7 +28,7 @@ final class RssFeedManager[F[_] : Concurrent : ContextShift : Sync : Timer] exte
     channelById: ChannelById => {
       val decoratedChannelWithItems = getChannelInfo(channelById.id) match {
         case (channel: Channel, items: List[Item]) =>
-          DecoratedChannelWithItems.fromChannel(channel, "toto.html", items)
+          DecoratedChannelWithItems.fromChannel(channel, items)
       }
 
       //    val databaseChannels = getFilteredChannels(statement)
@@ -81,22 +81,24 @@ object RssFeedManager {
 
   val formatter = new scala.xml.PrettyPrinter(24, 4)
 
-  val example = DecoratedChannelWithItems(1, "toto",
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    List()
+  val example = DecoratedChannelWithItems(
+    id = 1,
+    title = "toto",
+    description = "desc",
+    language = "en_US",
+    image = "example.png",
+    category = "Space",
+    explicit = true,
+    author = null,
+    ownerName = null,
+    ownerMail = null,
+    podcastType = null,
+    copyright = null,
+    newFeedUrl = null,
+    block = null,
+    complete = null,
+    link = null,
+    items = List()
   )
   val codec = Codec.xml(
     (_: String) => DecodeResult.Value(example)

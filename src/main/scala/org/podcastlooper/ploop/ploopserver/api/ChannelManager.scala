@@ -26,7 +26,7 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
 
   val getChannels: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
     val databaseChannels = Repository.getAllChannels
-    val decoratedChannels = databaseChannels.map(DecoratedChannel.fromChannel(_, "toto.html"))
+    val decoratedChannels = databaseChannels.map(DecoratedChannel.fromChannel)
     Sync[F].delay(Either.right(decoratedChannels))
   }
 
