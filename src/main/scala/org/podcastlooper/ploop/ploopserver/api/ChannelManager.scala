@@ -33,7 +33,7 @@ final class ChannelManager[F[_]: Concurrent: ContextShift: Sync: Timer] extends 
 
   val getChannel: HttpRoutes[F] = Http4sServerInterpreter.toRoutes(ChannelManager.channels) { _ =>
 
-    val statement = sql"select * from channels".query[Channel].to[List]
+    val statement = sql"select * from channels".query[Channel].accumulate[List]
     val result = getFilteredChannels(statement)
     Sync[F].delay(Either.right(result))
   }
